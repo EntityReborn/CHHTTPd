@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>me.entityreborn</groupId>
+    <artifactId>CHHTTPD</artifactId>
+    <version>0.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>CHHTTPD</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    <licenses>
+        <license>
+            <name>The MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.0.5.v20130815</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.sk89q</groupId>
+            <artifactId>commandhelper</artifactId>
+            <version>3.3.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <id>ShadedBundle</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.eclipse.jetty:*:jar:*</include>
+                                    <include>org.eclipse.jetty.orbit:*:jar:*</include>
+                                </includes>
+                            </artifactSet>
+                            
+                            <minimizeJar>true</minimizeJar>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <repositories>
+        <repository>
+            <id>sk89q-mvn2</id>
+            <url>http://mvn2.sk89q.com/repo</url>
+        </repository>
+    </repositories>
+    
+    
+</project>
