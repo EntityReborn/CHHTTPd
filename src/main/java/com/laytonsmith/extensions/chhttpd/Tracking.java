@@ -35,15 +35,15 @@ import static me.entityreborn.chhttpd.SimpleServer.getVersion;
  * @author Jason Unger <entityreborn@gmail.com>
  */
 public class Tracking {
-    static SimpleServer server;
-    boolean started;
+    private static SimpleServer server;
+    private static boolean started;
     
     public static SimpleServer getServer() {
         return server;
     }
     
     @startup
-    public void startup() {
+    public static void startup() {
         System.out.println("CHHTTPd v" + getVersion() + " starting...");
         
         server = new SimpleServer();
@@ -63,7 +63,7 @@ public class Tracking {
     }
     
     @shutdown
-    public void shutdown() {
+    public static void shutdown() {
         System.out.println("CHHTTPd v" + getVersion() + " stopping...");
         
         try {

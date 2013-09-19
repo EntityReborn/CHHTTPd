@@ -40,6 +40,7 @@
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>
             <version>3.3.1-SNAPSHOT</version>
+            <scope>provided</scope>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -54,18 +55,17 @@
                     <execution>
                         <id>ShadedBundle</id>
                         <phase>package</phase>
+                        
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        
                         <configuration>
-                            <artifactSet>
+                            <!--artifactSet>
                                 <includes>
-                                    <include>org.eclipse.jetty:*:jar:*</include>
-                                    <include>org.eclipse.jetty.orbit:*:jar:*</include>
+                                    <include>org.eclipse.jetty*:*:jar:*</include>
                                 </includes>
-                            </artifactSet>
-                            
-                            <minimizeJar>true</minimizeJar>
+                            </artifactSet-->
                         </configuration>
                     </execution>
                 </executions>
