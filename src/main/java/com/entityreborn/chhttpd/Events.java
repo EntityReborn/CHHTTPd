@@ -21,22 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.laytonsmith.extensions.chhttpd;
+package com.entityreborn.chhttpd;
 
 import com.laytonsmith.PureUtilities.Version;
-import com.laytonsmith.abstraction.StaticLayer;
 import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.CArray;
+import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CInt;
 import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
+import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.events.AbstractEvent;
 import com.laytonsmith.core.events.BindableEvent;
+import com.laytonsmith.core.events.BoundEvent;
 import com.laytonsmith.core.events.Driver;
-import com.laytonsmith.core.events.EventUtils;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.exceptions.EventException;
 import com.laytonsmith.core.exceptions.PrefilterNonMatchException;
@@ -44,38 +45,23 @@ import com.laytonsmith.core.functions.Exceptions.ExceptionType;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.server.Request;
+import org.simpleframework.http.Cookie;
+import org.simpleframework.http.Part;
+import org.simpleframework.http.Request;
+import org.simpleframework.http.Response;
 
 /**
  *
  * @author Jason Unger <entityreborn@gmail.com>
  */
 public class Events {
-    public static void fireevent(String path, Request request, HttpServletResponse response) {
-        final HTTPRequest event = new HTTPRequest(path, request, response);
-        try {
-            StaticLayer.GetConvertor().runOnMainThreadAndWait(new Callable<Object>() {
-                public Object call() {
-                    EventUtils.TriggerListener(Driver.EXTENSION, "http_request", event);
-                    return null;
-                }
-            });
-        } catch (Exception ex) {
-            Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    private static class HTTPRequest implements BindableEvent {
-        private final String path;
+    protected static class HTTPRequest implements BindableEvent {
         private final Request request;
-        private final HttpServletResponse response;
+        private final Response response;
 
-        public HTTPRequest(String path, Request request, HttpServletResponse response) {
-            this.path = path;
+        public HTTPRequest(Request request, Response response) {
             this.request = request;
             this.response = response;
         }
@@ -85,19 +71,11 @@ public class Events {
         }
         
         public String getPath() {
-            return path;
+            return request.getPath().getPath();
         }
         
         public String getServerName() {
-            return request.getServerName();
-        }
-        
-        public int getPort() {
-            return request.getServerPort();
-        }
-        
-        public Map<String, String[]> getParmeters() {
-            return request.getParameterMap();
+            return request.getValue("Host");
         }
         
         public String getMethod() {
@@ -105,18 +83,45 @@ public class Events {
         }
         
         public void setCode(int code) {
-            request.setHandled(true);
-            response.setStatus(code);
+            response.setCode(code);
+        }
+        
+        public void setHeader(String key, String value) {
+            response.setValue(key, value);
+        }
+        
+        public Request getRequest() {
+            return request;
         }
         
         public void setBody(String body) throws IOException {
-            request.setHandled(true);
-            response.getWriter().append(body);
+            response.getPrintStream().append(body);
         }
         
         public void setContentType(String type) {
-            request.setHandled(true);
             response.setContentType(type);
+        }
+        
+        public void setCookie(String key, String value) {
+            response.setCookie(key, value);
+        }
+
+        public void setCookie(Cookie c) {
+            response.setCookie(c);
+        }
+        
+        public void commit() {
+            try {
+                response.commit();
+            } catch (IOException ex) {
+                Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    response.getPrintStream().close();
+                } catch (IOException ex1) {
+                    Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            }
         }
     }
     
@@ -144,24 +149,74 @@ public class Events {
             
             if (e instanceof HTTPRequest) {
                 HTTPRequest req = (HTTPRequest)e;
+                
+                retn.put("host", new CString(req.getServerName(), Target.UNKNOWN));
                 retn.put("method", new CString(req.getMethod(), Target.UNKNOWN));
                 retn.put("path", new CString(req.getPath(), Target.UNKNOWN));
-                retn.put("port", new CInt(req.getPort(), Target.UNKNOWN));
+                
+                Request r = req.getRequest();
                 
                 CArray params = new CArray(Target.UNKNOWN);
-                for (String name: req.getParmeters().keySet()) {
-                    CArray arr = new CArray(Target.UNKNOWN);
+                
+                for (String key : r.getQuery().keySet()) {
+                    CArray items = new CArray(Target.UNKNOWN);
                     
-                    String[] values = req.getParmeters().get(name);
-                    for (String value : values) {
-                        arr.push(new CString(value, Target.UNKNOWN));
+                    for (String item : r.getQuery().getAll(key)) {
+                        items.push(new CString(item, Target.UNKNOWN));
                     }
                     
-                    params.set(name, arr, Target.UNKNOWN);
+                    params.set(key, items, Target.UNKNOWN);
                 }
                 
                 retn.put("parameters", params);
                 
+                CArray headers = new CArray(Target.UNKNOWN);
+                
+                for (String key : r.getNames()) {
+                    CArray items = new CArray(Target.UNKNOWN);
+                    
+                    for (String item : r.getValues(key)) {
+                        items.push(new CString(item, Target.UNKNOWN));
+                    }
+                    
+                    headers.set(key, items, Target.UNKNOWN);
+                }
+                
+                retn.put("headers", headers);
+                
+                CArray data = new CArray(Target.UNKNOWN);
+                
+                for (Part part : r.getParts()) {
+                    String key = part.getName();
+                    String value = "";
+                    
+                    try {
+                        value = part.getContent();
+                    } catch (IOException ex) {
+                        Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                    data.set(key, value, Target.UNKNOWN);
+                }
+                
+                retn.put("postdata", data);
+                
+                CArray cookies = new CArray(Target.UNKNOWN);
+                
+                for (Cookie cookie : r.getCookies()) {
+                    CArray cook = new CArray(Target.UNKNOWN);
+                    
+                    cook.set("value", cookie.getValue());
+                    cook.set("expires", String.valueOf(cookie.getExpiry()));
+                    cook.set("path", cookie.getPath());
+                    cook.set("domain", cookie.getDomain());
+                    cook.set("httponly", 
+                            new CBoolean(cookie.isProtected(), Target.UNKNOWN), Target.UNKNOWN);
+                    
+                    cookies.set(cookie.getName(), cook, Target.UNKNOWN);
+                }
+                
+                retn.put("cookies", cookies);
             }
             
             return retn;
@@ -197,6 +252,16 @@ public class Events {
             
             return false;
         }
+
+        @Override
+        public void postExecution(Environment env, BoundEvent.ActiveEvent activeEvent) {
+            if (activeEvent.getUnderlyingEvent() instanceof HTTPRequest) {
+                HTTPRequest req = (HTTPRequest)activeEvent.getUnderlyingEvent();
+                
+                req.commit();
+            }
+        }
+        
 
         public Version since() {
             return CHVersion.V3_3_1;

@@ -1,4 +1,4 @@
-package me.entityreborn.chhttpd;
+package com.entityreborn.chhttpd;
 
 /**
  *

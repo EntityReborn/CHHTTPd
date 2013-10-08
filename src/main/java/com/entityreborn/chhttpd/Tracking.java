@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.laytonsmith.extensions.chhttpd;
+package com.entityreborn.chhttpd;
 
 import com.laytonsmith.annotations.shutdown;
 import com.laytonsmith.annotations.startup;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.entityreborn.chhttpd.SimpleServer;
-import static me.entityreborn.chhttpd.SimpleServer.getVersion;
+import static com.entityreborn.chhttpd.SimpleServer.getVersion;
 
 /**
  *
@@ -36,7 +36,6 @@ import static me.entityreborn.chhttpd.SimpleServer.getVersion;
  */
 public class Tracking {
     private static SimpleServer server;
-    private static boolean started;
     
     public static SimpleServer getServer() {
         return server;
@@ -45,18 +44,11 @@ public class Tracking {
     @startup
     public static void startup() {
         System.out.println("CHHTTPd v" + getVersion() + " starting...");
-        
-        server = new SimpleServer();
-        started = false;
-        server.listen(80);
-        
         try {
-            server.start();
-            server.listen(8080);
-            started = true;
-        } catch (Exception ex) {
-            Logger.getLogger(Tracking.class.getName()).log(Level.SEVERE, 
-                    "Could not start HTTP server!", ex);
+            server = new SimpleServer(new RequestContainer());
+        } catch (IOException ex) {
+            Logger.getLogger(Tracking.class.getName()).log(Level.SEVERE, null, ex);
+            return;
         }
         
         System.out.println("CHHTTPd v" + getVersion() + " started.");
@@ -67,7 +59,7 @@ public class Tracking {
         System.out.println("CHHTTPd v" + getVersion() + " stopping...");
         
         try {
-            if (started) {
+            if (server != null) {
                 server.stop();
             }
         } catch (Exception ex) {
