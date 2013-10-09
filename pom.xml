@@ -9,7 +9,12 @@
 
     <name>CHHTTPD</name>
     <url>http://maven.apache.org</url>
-
+    
+    <ciManagement>
+        <system>hudson</system>
+        <url>http://build.zeoldcraft.com/job/CHHTTPd/</url>
+    </ciManagement>
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
