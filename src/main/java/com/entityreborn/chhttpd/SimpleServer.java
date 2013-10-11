@@ -62,27 +62,15 @@ public class SimpleServer {
         connectionMap.clear();
     }
     
-    public void listen(int port) {
+    public void listen(int port) throws IOException {
         if (!connectionMap.containsKey(port)) {
             Connection connection;
             
-            try {
-                connection = new SocketConnection(server);
-            } catch (IOException ex) {
-                Logger.getLogger(SimpleServer.class.getName()).log(Level.SEVERE, 
-                        "Could not create a socketconnection!", ex);
-                return;
-            }
+            connection = new SocketConnection(server);
             
             SocketAddress address = new InetSocketAddress(port);
             
-            try {
-                connection.connect(address);
-            } catch (IOException ex) {
-                Logger.getLogger(SimpleServer.class.getName()).log(Level.SEVERE, 
-                        "Could not listen on port " + port, ex);
-                return;
-            }
+            connection.connect(address); // Let it throw an exception if necessary.
             
             connectionMap.put(port, connection);
         }

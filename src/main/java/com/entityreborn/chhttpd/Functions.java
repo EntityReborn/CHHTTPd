@@ -28,7 +28,6 @@ import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.CArray;
-import com.laytonsmith.core.constructs.CString;
 import com.laytonsmith.core.constructs.CVoid;
 import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
@@ -39,7 +38,7 @@ import com.laytonsmith.core.events.Event;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
 import com.laytonsmith.core.functions.Exceptions;
-import java.util.List;
+import java.io.IOException;
 import org.simpleframework.http.Cookie;
 
 /**
@@ -47,6 +46,27 @@ import org.simpleframework.http.Cookie;
  * @author Jason Unger <entityreborn@gmail.com>
  */
 public class Functions {
+    public static HTTPRequest getEvent(String source, Environment env, Target t) {
+        BoundEvent.ActiveEvent active = env.getEnv(CommandHelperEnvironment.class).GetEvent();
+        
+        if (active == null) {
+            throw new ConfigRuntimeException(source + " must be called from within an event handler", Exceptions.ExceptionType.BindException, t);
+        }
+
+        Event e = active.getEventDriver();
+
+        if (active.getBoundEvent().getPriority().equals(BoundEvent.Priority.MONITOR)) {
+            throw new ConfigRuntimeException("Monitor level handlers may not modify an event!", Exceptions.ExceptionType.BindException, t);
+        }
+        
+        if (!(active.getUnderlyingEvent() instanceof HTTPRequest)) {
+            throw new ConfigRuntimeException("This function must be called in the http_request event!", Exceptions.ExceptionType.BindException, t); 
+        }
+
+        HTTPRequest req = (HTTPRequest)active.getUnderlyingEvent();
+        
+        return req;
+    }
     
     // Unashamedly copied from modify_event. Original version (C) LadyCailin
     @api(environments = CommandHelperEnvironment.class)
@@ -84,23 +104,7 @@ public class Functions {
             String key = args[0].val();
             String value = args[1].val();
             
-            if (environment.getEnv(CommandHelperEnvironment.class).GetEvent() == null) {
-                throw new ConfigRuntimeException(this.getName() + " must be called from within an event handler", Exceptions.ExceptionType.BindException, t);
-            }
-            
-            Event e = environment.getEnv(CommandHelperEnvironment.class).GetEvent().getEventDriver();
-            
-            if (environment.getEnv(CommandHelperEnvironment.class).GetEvent().getBoundEvent().getPriority().equals(BoundEvent.Priority.MONITOR)) {
-                throw new ConfigRuntimeException("Monitor level handlers may not modify an event!", Exceptions.ExceptionType.BindException, t);
-            }
-            
-            BoundEvent.ActiveEvent active = environment.getEnv(CommandHelperEnvironment.class).GetEvent();
-            
-            if (!(active.getUnderlyingEvent() instanceof HTTPRequest)) {
-                throw new ConfigRuntimeException("This function must be called in http_request event!", Exceptions.ExceptionType.BindException, t); 
-            }
-            
-            HTTPRequest req = (HTTPRequest)active.getUnderlyingEvent();
+            HTTPRequest req = getEvent(this.getName(), environment, t);
             
             req.setHeader(key, value);
             
@@ -141,23 +145,7 @@ public class Functions {
         }
 
         public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
-            if (environment.getEnv(CommandHelperEnvironment.class).GetEvent() == null) {
-                throw new ConfigRuntimeException(this.getName() + " must be called from within an event handler", Exceptions.ExceptionType.BindException, t);
-            }
-            
-            Event e = environment.getEnv(CommandHelperEnvironment.class).GetEvent().getEventDriver();
-            
-            if (environment.getEnv(CommandHelperEnvironment.class).GetEvent().getBoundEvent().getPriority().equals(BoundEvent.Priority.MONITOR)) {
-                throw new ConfigRuntimeException("Monitor level handlers may not modify an event!", Exceptions.ExceptionType.BindException, t);
-            }
-            
-            BoundEvent.ActiveEvent active = environment.getEnv(CommandHelperEnvironment.class).GetEvent();
-            
-            if (!(active.getUnderlyingEvent() instanceof HTTPRequest)) {
-                throw new ConfigRuntimeException("This function must be called in http_request event!", Exceptions.ExceptionType.BindException, t); 
-            }
-            
-            HTTPRequest req = (HTTPRequest)active.getUnderlyingEvent();
+            HTTPRequest req = getEvent(this.getName(), environment, t);
             
             if (args[0] instanceof CArray) {
                 CArray parts = (CArray)args[0];
@@ -234,7 +222,11 @@ public class Functions {
         public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
             int port = Static.getInt32(args[0], t);
             
-            Tracking.getServer().listen(port);
+            try {
+                Tracking.getServer().listen(port);
+            } catch (IOException e) {
+                throw new ConfigRuntimeException("Could not listen on port " + port, Exceptions.ExceptionType.IOException, t);
+            }
             
             return new CVoid(t);
         }
