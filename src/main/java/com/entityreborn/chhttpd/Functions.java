@@ -33,6 +33,7 @@ import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
+import com.laytonsmith.core.environments.GlobalEnv;
 import com.laytonsmith.core.events.BoundEvent;
 import com.laytonsmith.core.events.Event;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
@@ -47,7 +48,7 @@ import org.simpleframework.http.Cookie;
  */
 public class Functions {
     public static HTTPRequest getEvent(String source, Environment env, Target t) {
-        BoundEvent.ActiveEvent active = env.getEnv(CommandHelperEnvironment.class).GetEvent();
+        BoundEvent.ActiveEvent active = env.getEnv(GlobalEnv.class).GetEvent();
         
         if (active == null) {
             throw new ConfigRuntimeException(source + " must be called from within an event handler", Exceptions.ExceptionType.BindException, t);
