@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>me.entityreborn</groupId>
-    <artifactId>CHHTTPD</artifactId>
-    <version>0.0.0</version>
+    <artifactId>CHHTTPd</artifactId>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
-    <name>CHHTTPD</name>
+    <name>CHHTTPd</name>
     <url>http://maven.apache.org</url>
     
     <ciManagement>
