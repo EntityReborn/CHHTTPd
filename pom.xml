@@ -45,7 +45,6 @@
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>
             <version>3.3.1-SNAPSHOT</version>
-            <scope>provided</scope>
             <type>jar</type>
         </dependency>
     </dependencies>
@@ -84,8 +83,68 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.simpleframework:simple:jar:*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            
+            <!-- Leave this alone! Verifies some things so that your extension works. -->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>2.2.4</version>
+        
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <phase>process-classes</phase>
+                        
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+        
+                <configuration>
+                    <outputDirectory>src/main/generated</outputDirectory>
+          
+                    <processors>
+                        <processor>com.laytonsmith.core.extensions.ExtensionAnnotationProcessor</processor>
+                    </processors>
+                </configuration>
+            </plugin>
+            
+            <!-- Leave this alone! Speeds up extension loading. -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+        
+                <executions>
+                    <execution>
+                        <id>cache-annotations</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+        
+                <configuration>
+                    <mainClass>com.laytonsmith.PureUtilities.ClassLoading.Annotations.CacheAnnotations</mainClass>
+          
+                    <arguments>
+                        <argument>${basedir}/target/classes</argument>
+                        <argument>${basedir}/target/classes</argument>
+                    </arguments>
+                </configuration>
             </plugin>
         </plugins>
     </build>

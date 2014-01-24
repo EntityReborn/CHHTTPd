@@ -18,29 +18,6 @@ import org.simpleframework.transport.connect.SocketConnection;
  */
 public class SimpleServer {
     private final ContainerServer server;
-    private static String VERSION;
-
-    static {
-        Package p = SimpleServer.class.getPackage();
-
-        if (p == null) {
-            p = Package.getPackage("com.entityreborn.chhttpd");
-        }
-
-        VERSION = "(unknown)";
-
-        if (p != null) {
-            String v = p.getImplementationVersion();
-
-            if (v != null) {
-                VERSION = v;
-            }
-        }
-    }
-
-    public static String getVersion() {
-        return VERSION;
-    }
     
     Map<Integer, Connection> connectionMap = new HashMap<Integer,Connection>();
 
