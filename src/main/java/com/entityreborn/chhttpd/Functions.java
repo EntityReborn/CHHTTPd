@@ -28,7 +28,7 @@ import com.laytonsmith.annotations.api;
 import com.laytonsmith.core.CHVersion;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.CArray;
-import com.laytonsmith.core.constructs.CVoid;
+import com.laytonsmith.core.constructs.CNull;
 import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
@@ -109,7 +109,7 @@ public class Functions {
             
             req.setHeader(key, value);
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
     }
     
@@ -185,7 +185,7 @@ public class Functions {
                 req.setCookie(key, value);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
     }
     
@@ -229,7 +229,7 @@ public class Functions {
                 throw new ConfigRuntimeException("Could not listen on port " + port, Exceptions.ExceptionType.IOException, t);
             }
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
     }
     
@@ -269,7 +269,7 @@ public class Functions {
             
             CHHTTPd.getServer().unlisten(port);
             
-            return new CVoid(t);
+            return CNull.NULL;
         }
     }
 }
