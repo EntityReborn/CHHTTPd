@@ -162,19 +162,19 @@ public class Functions {
                 Cookie c = new Cookie(parts.get("name", t).val(), parts.get("value", t).val());
                 
                 if (parts.containsKey("path")) {
-                    c.setPath(parts.get("path").val());
+                    c.setPath(parts.get("path", t).val());
                 }
                 
                 if (parts.containsKey("expires")) {
-                    c.setExpiry(Static.getInt32(parts.get("expires"), t));
+                    c.setExpiry(Static.getInt32(parts.get("expires", t), t));
                 }
                 
                 if (parts.containsKey("domain")) {
-                    c.setDomain(parts.get("domain").val());
+                    c.setDomain(parts.get("domain", t).val());
                 }
                 
                 if (parts.containsKey("httponly")) {
-                    c.setProtected(Static.getBoolean(parts.get("httponly")));
+                    c.setProtected(Static.getBoolean(parts.get("httponly", t)));
                 }
                 
                 req.setCookie(c);

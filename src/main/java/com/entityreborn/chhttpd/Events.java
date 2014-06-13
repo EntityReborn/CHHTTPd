@@ -211,7 +211,7 @@ public class Events {
                     cook.set("path", cookie.getPath());
                     cook.set("domain", cookie.getDomain());
                     cook.set("httponly", 
-                            new CBoolean(cookie.isProtected(), Target.UNKNOWN), Target.UNKNOWN);
+                            CBoolean.get(cookie.isProtected()), Target.UNKNOWN);
                     
                     cookies.set(cookie.getName(), cook, Target.UNKNOWN);
                 }
@@ -265,6 +265,10 @@ public class Events {
 
         public Version since() {
             return CHVersion.V3_3_1;
+        }
+
+        public BindableEvent convert(CArray manualObject, Target t) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
     }
     
