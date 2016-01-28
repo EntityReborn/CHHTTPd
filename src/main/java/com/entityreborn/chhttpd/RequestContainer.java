@@ -25,7 +25,6 @@ package com.entityreborn.chhttpd;
 
 import com.laytonsmith.core.events.Driver;
 import com.laytonsmith.core.events.EventUtils;
-import java.io.PrintStream;
 import com.entityreborn.chhttpd.Events.HTTPRequest;
 import org.simpleframework.http.Request;
 import org.simpleframework.http.Response;

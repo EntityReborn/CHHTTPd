@@ -36,9 +36,12 @@ import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.environments.GlobalEnv;
 import com.laytonsmith.core.events.BoundEvent;
 import com.laytonsmith.core.events.Event;
+import com.laytonsmith.core.exceptions.CRE.CREBindException;
+import com.laytonsmith.core.exceptions.CRE.CREFormatException;
+import com.laytonsmith.core.exceptions.CRE.CREIOException;
+import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
-import com.laytonsmith.core.functions.Exceptions;
 import java.io.IOException;
 import org.simpleframework.http.Cookie;
 
@@ -51,17 +54,17 @@ public class Functions {
         BoundEvent.ActiveEvent active = env.getEnv(GlobalEnv.class).GetEvent();
         
         if (active == null) {
-            throw new ConfigRuntimeException(source + " must be called from within an event handler", Exceptions.ExceptionType.BindException, t);
+            throw new CREBindException(source + " must be called from within an event handler", t);
         }
 
         Event e = active.getEventDriver();
 
         if (active.getBoundEvent().getPriority().equals(BoundEvent.Priority.MONITOR)) {
-            throw new ConfigRuntimeException("Monitor level handlers may not modify an event!", Exceptions.ExceptionType.BindException, t);
+            throw new CREBindException("Monitor level handlers may not modify an event!", t);
         }
         
         if (!(active.getUnderlyingEvent() instanceof HTTPRequest)) {
-            throw new ConfigRuntimeException("This function must be called in the http_request event!", Exceptions.ExceptionType.BindException, t); 
+            throw new CREBindException("This function must be called in the http_request event!", t);
         }
 
         HTTPRequest req = (HTTPRequest)active.getUnderlyingEvent();
@@ -85,8 +88,8 @@ public class Functions {
             return "";
         }
 
-        public Exceptions.ExceptionType[] thrown() {
-            return new Exceptions.ExceptionType[]{Exceptions.ExceptionType.BindException};
+        public Class<? extends CREThrowable>[] thrown() {
+            return new Class[]{CREBindException.class};
         }
 
         public boolean isRestricted() {
@@ -129,8 +132,8 @@ public class Functions {
             return "";
         }
 
-        public Exceptions.ExceptionType[] thrown() {
-            return new Exceptions.ExceptionType[]{Exceptions.ExceptionType.BindException};
+        public Class<? extends CREThrowable>[] thrown() {
+            return new Class[]{CREBindException.class};
         }
 
         public boolean isRestricted() {
@@ -152,11 +155,11 @@ public class Functions {
                 CArray parts = (CArray)args[0];
                 
                 if (!parts.inAssociativeMode()) {
-                    throw new ConfigRuntimeException("Expecting an associative array for httpd_set_cookie!", Exceptions.ExceptionType.FormatException, t);
+                    throw new CREFormatException("Expecting an associative array for httpd_set_cookie!", t);
                 }
                 
                 if (!parts.containsKey("name") || !parts.containsKey("value")) {
-                    throw new ConfigRuntimeException("Associative array for httpd_set_cookie must contain 'name' and 'value'!", Exceptions.ExceptionType.FormatException, t);
+                    throw new CREFormatException("Associative array for httpd_set_cookie must contain 'name' and 'value'!", t);
                 }
                 
                 Cookie c = new Cookie(parts.get("name", t).val(), parts.get("value", t).val());
@@ -204,8 +207,8 @@ public class Functions {
             return "";
         }
 
-        public Exceptions.ExceptionType[] thrown() {
-            return new Exceptions.ExceptionType[]{Exceptions.ExceptionType.FormatException};
+        public Class<? extends CREThrowable>[] thrown() {
+            return new Class[]{CREFormatException.class};
         }
 
         public boolean isRestricted() {
@@ -226,7 +229,7 @@ public class Functions {
             try {
                 CHHTTPd.getServer().listen(port);
             } catch (IOException e) {
-                throw new ConfigRuntimeException("Could not listen on port " + port, Exceptions.ExceptionType.IOException, t);
+                throw new CREIOException("Could not listen on port " + port, t);
             }
             
             return CNull.NULL;
@@ -248,8 +251,8 @@ public class Functions {
             return "";
         }
 
-        public Exceptions.ExceptionType[] thrown() {
-            return new Exceptions.ExceptionType[]{Exceptions.ExceptionType.FormatException};
+        public Class<? extends CREThrowable>[] thrown() {
+            return new Class[]{CREFormatException.class};
         }
 
         public boolean isRestricted() {
