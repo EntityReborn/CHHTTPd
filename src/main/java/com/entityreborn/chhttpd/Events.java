@@ -38,10 +38,11 @@ import com.laytonsmith.core.events.AbstractEvent;
 import com.laytonsmith.core.events.BindableEvent;
 import com.laytonsmith.core.events.BoundEvent;
 import com.laytonsmith.core.events.Driver;
+import com.laytonsmith.core.exceptions.CRE.CREFormatException;
+import com.laytonsmith.core.exceptions.CRE.CREIOException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.exceptions.EventException;
 import com.laytonsmith.core.exceptions.PrefilterNonMatchException;
-import com.laytonsmith.core.functions.Exceptions.ExceptionType;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -148,43 +149,44 @@ public class Events {
             Map<String, Construct> retn = new HashMap<String, Construct>();
             
             if (e instanceof HTTPRequest) {
+                Target t = Target.UNKNOWN;
                 HTTPRequest req = (HTTPRequest)e;
                 
-                retn.put("host", new CString(req.getServerName(), Target.UNKNOWN));
-                retn.put("method", new CString(req.getMethod(), Target.UNKNOWN));
-                retn.put("path", new CString(req.getPath(), Target.UNKNOWN));
+                retn.put("host", new CString(req.getServerName(), t));
+                retn.put("method", new CString(req.getMethod(), t));
+                retn.put("path", new CString(req.getPath(), t));
                 
                 Request r = req.getRequest();
                 
-                CArray params = new CArray(Target.UNKNOWN);
+                CArray params = new CArray(t);
                 
                 for (String key : r.getQuery().keySet()) {
-                    CArray items = new CArray(Target.UNKNOWN);
+                    CArray items = new CArray(t);
                     
                     for (String item : r.getQuery().getAll(key)) {
-                        items.push(new CString(item, Target.UNKNOWN));
+                        items.push(new CString(item, t), t);
                     }
                     
-                    params.set(key, items, Target.UNKNOWN);
+                    params.set(key, items, t);
                 }
                 
                 retn.put("parameters", params);
                 
-                CArray headers = new CArray(Target.UNKNOWN);
+                CArray headers = new CArray(t);
                 
                 for (String key : r.getNames()) {
-                    CArray items = new CArray(Target.UNKNOWN);
+                    CArray items = new CArray(t);
                     
                     for (String item : r.getValues(key)) {
-                        items.push(new CString(item, Target.UNKNOWN));
+                        items.push(new CString(item, t), t);
                     }
                     
-                    headers.set(key, items, Target.UNKNOWN);
+                    headers.set(key, items, t);
                 }
                 
                 retn.put("headers", headers);
                 
-                CArray data = new CArray(Target.UNKNOWN);
+                CArray data = new CArray(t);
                 
                 for (Part part : r.getParts()) {
                     String key = part.getName();
@@ -196,24 +198,24 @@ public class Events {
                         Logger.getLogger(Events.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     
-                    data.set(key, value, Target.UNKNOWN);
+                    data.set(key, value, t);
                 }
                 
                 retn.put("postdata", data);
                 
-                CArray cookies = new CArray(Target.UNKNOWN);
+                CArray cookies = new CArray(t);
                 
                 for (Cookie cookie : r.getCookies()) {
-                    CArray cook = new CArray(Target.UNKNOWN);
+                    CArray cook = new CArray(t);
                     
                     cook.set("value", cookie.getValue());
                     cook.set("expires", String.valueOf(cookie.getExpiry()));
                     cook.set("path", cookie.getPath());
                     cook.set("domain", cookie.getDomain());
                     cook.set("httponly", 
-                            CBoolean.get(cookie.isProtected()), Target.UNKNOWN);
+                            CBoolean.get(cookie.isProtected()), t);
                     
-                    cookies.set(cookie.getName(), cook, Target.UNKNOWN);
+                    cookies.set(cookie.getName(), cook, t);
                 }
                 
                 retn.put("cookies", cookies);
@@ -235,11 +237,11 @@ public class Events {
                         req.setBody(value.val());
                         return true;
                     } catch (IOException ex) {
-                        throw new ConfigRuntimeException(ex.getMessage(), ExceptionType.IOException, Target.UNKNOWN);
+                        throw new CREIOException(ex.getMessage(), Target.UNKNOWN);
                     }
                 } else if ("code".equalsIgnoreCase(key)) {
                     if (!(value instanceof CInt)) {
-                        throw new ConfigRuntimeException("You must specify an int!", ExceptionType.FormatException, Target.UNKNOWN);
+                        throw new CREFormatException("You must specify an int!", Target.UNKNOWN);
                     }
                     
                     req.setCode(Static.getInt16(value, Target.UNKNOWN));
