@@ -73,6 +73,6 @@ public class CHHTTPd extends AbstractExtension {
     }
 
     public Version getVersion() {
-        return new SimpleVersion(0,0,2);
+        return new SimpleVersion(0,0,3);
     }
 }
