@@ -4,7 +4,7 @@
 
     <groupId>me.entityreborn</groupId>
     <artifactId>CHHTTPd</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <packaging>jar</packaging>
 
     <name>CHHTTPd</name>
@@ -12,7 +12,7 @@
     
     <ciManagement>
         <system>hudson</system>
-        <url>http://build.zeoldcraft.com/job/CHHTTPd/</url>
+        <url>https://letsbuild.net/jenkins/job/CHHTTPd/</url>
     </ciManagement>
     
     <properties>
@@ -44,8 +44,7 @@
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>commandhelper</artifactId>
-            <version>3.3.2-SNAPSHOT</version>
-            <type>jar</type>
+            <version>3.3.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
     
@@ -151,8 +150,8 @@
     
     <repositories>
         <repository>
-            <id>sk89q-mvn2</id>
-            <url>http://mvn2.sk89q.com/repo</url>
+            <id>sk89q-repo</id>
+            <url>http://maven.sk89q.com/repo</url>
         </repository>
     </repositories>
     

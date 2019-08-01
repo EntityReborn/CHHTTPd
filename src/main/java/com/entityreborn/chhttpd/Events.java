@@ -25,13 +25,12 @@ package com.entityreborn.chhttpd;
 
 import com.laytonsmith.PureUtilities.Version;
 import com.laytonsmith.annotations.api;
-import com.laytonsmith.core.CHVersion;
+import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CBoolean;
 import com.laytonsmith.core.constructs.CInt;
 import com.laytonsmith.core.constructs.CString;
-import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.Environment;
 import com.laytonsmith.core.events.AbstractEvent;
@@ -43,6 +42,7 @@ import com.laytonsmith.core.exceptions.CRE.CREIOException;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.exceptions.EventException;
 import com.laytonsmith.core.exceptions.PrefilterNonMatchException;
+import com.laytonsmith.core.natives.interfaces.Mixed;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,16 +137,12 @@ public class Events {
             return ""; //TBA
         }
 
-        public boolean matches(Map<String, Construct> prefilter, BindableEvent e) throws PrefilterNonMatchException {
+        public boolean matches(Map<String, Mixed> prefilter, BindableEvent e) throws PrefilterNonMatchException {
             return true;
         }
 
-        public BindableEvent convert(CArray manualObject) {
-            return null;
-        }
-
-        public Map<String, Construct> evaluate(BindableEvent e) throws EventException {
-            Map<String, Construct> retn = new HashMap<String, Construct>();
+        public Map<String, Mixed> evaluate(BindableEvent e) throws EventException {
+            Map<String, Mixed> retn = new HashMap<String, Mixed>();
             
             if (e instanceof HTTPRequest) {
                 Target t = Target.UNKNOWN;
@@ -228,7 +224,7 @@ public class Events {
             return Driver.EXTENSION;
         }
 
-        public boolean modifyEvent(String key, Construct value, BindableEvent event) throws ConfigRuntimeException {
+        public boolean modifyEvent(String key, Mixed value, BindableEvent event) throws ConfigRuntimeException {
             if (event instanceof HTTPRequest) {
                 HTTPRequest req = (HTTPRequest)event; 
                 
@@ -266,7 +262,7 @@ public class Events {
         
 
         public Version since() {
-            return CHVersion.V3_3_1;
+            return MSVersion.V3_3_1;
         }
 
         public BindableEvent convert(CArray manualObject, Target t) {

@@ -25,11 +25,10 @@ package com.entityreborn.chhttpd;
 
 import com.entityreborn.chhttpd.Events.HTTPRequest;
 import com.laytonsmith.annotations.api;
-import com.laytonsmith.core.CHVersion;
+import com.laytonsmith.core.MSVersion;
 import com.laytonsmith.core.Static;
 import com.laytonsmith.core.constructs.CArray;
 import com.laytonsmith.core.constructs.CNull;
-import com.laytonsmith.core.constructs.Construct;
 import com.laytonsmith.core.constructs.Target;
 import com.laytonsmith.core.environments.CommandHelperEnvironment;
 import com.laytonsmith.core.environments.Environment;
@@ -42,6 +41,7 @@ import com.laytonsmith.core.exceptions.CRE.CREIOException;
 import com.laytonsmith.core.exceptions.CRE.CREThrowable;
 import com.laytonsmith.core.exceptions.ConfigRuntimeException;
 import com.laytonsmith.core.functions.AbstractFunction;
+import com.laytonsmith.core.natives.interfaces.Mixed;
 import java.io.IOException;
 import org.simpleframework.http.Cookie;
 
@@ -96,15 +96,15 @@ public class Functions {
             return true;
         }
 
-        public CHVersion since() {
-            return CHVersion.V3_3_1;
+        public MSVersion since() {
+            return MSVersion.V3_3_1;
         }
 
         public Boolean runAsync() {
             return false;
         }
 
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
             String key = args[0].val();
             String value = args[1].val();
             
@@ -140,15 +140,15 @@ public class Functions {
             return true;
         }
 
-        public CHVersion since() {
-            return CHVersion.V3_3_1;
+        public MSVersion since() {
+            return MSVersion.V3_3_1;
         }
 
         public Boolean runAsync() {
             return false;
         }
 
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
             HTTPRequest req = getEvent(this.getName(), environment, t);
             
             if (args[0] instanceof CArray) {
@@ -177,7 +177,7 @@ public class Functions {
                 }
                 
                 if (parts.containsKey("httponly")) {
-                    c.setProtected(Static.getBoolean(parts.get("httponly", t)));
+                    c.setProtected(Static.getBoolean(parts.get("httponly", t), t));
                 }
                 
                 req.setCookie(c);
@@ -215,15 +215,15 @@ public class Functions {
             return true;
         }
 
-        public CHVersion since() {
-            return CHVersion.V3_3_1;
+        public MSVersion since() {
+            return MSVersion.V3_3_1;
         }
 
         public Boolean runAsync() {
             return false;
         }
 
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
             int port = Static.getInt32(args[0], t);
             
             try {
@@ -259,15 +259,15 @@ public class Functions {
             return true;
         }
 
-        public CHVersion since() {
-            return CHVersion.V3_3_1;
+        public MSVersion since() {
+            return MSVersion.V3_3_1;
         }
 
         public Boolean runAsync() {
             return false;
         }
 
-        public Construct exec(Target t, Environment environment, Construct... args) throws ConfigRuntimeException {
+        public Mixed exec(Target t, Environment environment, Mixed... args) throws ConfigRuntimeException {
             int port = Static.getInt32(args[0], t);
             
             CHHTTPd.getServer().unlisten(port);
