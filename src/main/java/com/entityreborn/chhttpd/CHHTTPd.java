@@ -38,38 +38,38 @@ import java.util.logging.Logger;
 @MSExtension("CHHTTPd")
 public class CHHTTPd extends AbstractExtension {
     private static SimpleServer server;
-    
+
     public static SimpleServer getServer() {
         return server;
     }
-    
+
     @Override
     public void onStartup() {
-        System.out.println("CHHTTPd v" + getVersion() + " starting...");
+//        System.out.println("CHHTTPd v" + getVersion() + " starting...");
         try {
             server = new SimpleServer(new RequestContainer());
         } catch (IOException ex) {
             Logger.getLogger(CHHTTPd.class.getName()).log(Level.SEVERE, null, ex);
             return;
         }
-        
-        System.out.println("CHHTTPd v" + getVersion() + " started.");
+
+//        System.out.println("CHHTTPd v" + getVersion() + " started.");
     }
-    
+
     @Override
     public void onShutdown() {
-        System.out.println("CHHTTPd v" + getVersion() + " stopping...");
-        
+//        System.out.println("CHHTTPd v" + getVersion() + " stopping...");
+
         try {
             if (server != null) {
                 server.stop();
             }
         } catch (Exception ex) {
-            Logger.getLogger(CHHTTPd.class.getName()).log(Level.SEVERE, 
+            Logger.getLogger(CHHTTPd.class.getName()).log(Level.SEVERE,
                     "Could not stop HTTP server!", ex);
         }
-        
-        System.out.println("CHHTTPd v" + getVersion() + " stopped");
+
+//        System.out.println("CHHTTPd v" + getVersion() + " stopped");
     }
 
     public Version getVersion() {
